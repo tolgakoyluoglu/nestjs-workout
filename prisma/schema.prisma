@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  programs  Program[]
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Program {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workouts    Workout[]
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("programs")
+}
+
+model Workout {
+  id               String            @id @default(uuid())
+  name             String
+  description      String?
+  order            Int               @default(0)
+  programId        String            @map("program_id")
+  program          Program           @relation(fields: [programId], references: [id], onDelete: Cascade)
+  workoutExercises WorkoutExercise[]
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  @@map("workouts")
+}
+
+model Exercise {
+  id               String            @id @default(uuid())
+  name             String            @unique
+  description      String?
+  imageUrl         String?           @map("image_url")
+  videoUrl         String?           @map("video_url")
+  instructions     String?
+  difficulty       String?
+  equipmentNeeded  String[]          @map("equipment_needed")
+  musclesPrimary   String[]          @map("muscles_primary")
+  musclesSecondary String[]          @map("muscles_secondary")
+  workoutExercises WorkoutExercise[]
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  @@map("exercises")
+}
+
+model WorkoutExercise {
+  id         String   @id @default(uuid())
+  workoutId  String   @map("workout_id")
+  workout    Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exerciseId String   @map("exercise_id")
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  sets       Int
+  reps       Int
+  weight     Float?
+  restTime   Int?     @map("rest_time") // in seconds
+  notes      String?
+  order      Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("workout_exercises")
+}

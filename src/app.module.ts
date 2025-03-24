@@ -9,6 +9,7 @@ import { WorkoutsModule } from './workouts/workouts.module';
 import { ExercisesModule } from './exercises/exercises.module';
 import { ConfigModule } from '@nestjs/config';
 import { WorkoutExercisesModule } from './workout-exercises/workout-exercises.module';
+import { OpenAiModule } from './openai/openai.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { WorkoutExercisesModule } from './workout-exercises/workout-exercises.mo
     WorkoutsModule,
     ExercisesModule,
     WorkoutExercisesModule,
+    OpenAiModule,
   ],
   controllers: [OpenAiController],
   providers: [OpenAiService],

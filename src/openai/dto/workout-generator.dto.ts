@@ -3,6 +3,7 @@ import { IsInt, IsEnum, Min, Max } from 'class-validator';
 export enum FitnessGoal {
   MUSCLE_GAIN = 'muscle_gain',
   WEIGHT_LOSS = 'weight_loss',
+  BALANCED = 'balanced',
 }
 
 export class GenerateWorkoutDto {

@@ -17,13 +17,18 @@ async function bootstrap() {
       cookie: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        maxAge: 24 * 60 * 60 * 1000,
       },
     }),
   );
 
   app.use(passport.initialize());
   app.use(passport.session());
+  app.enableCors({
+    // Todo: check for prod flag
+    origin: 'http://localhost:5173',
+    credentials: true,
+  });
 
   await app.listen(3000);
 }

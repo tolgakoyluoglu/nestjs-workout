@@ -19,10 +19,7 @@ export class WorkoutExercisesService {
     workoutId: string,
     createWorkoutExerciseDto: CreateWorkoutExerciseDto,
   ) {
-    // Verify ownership
     await this.verifyWorkoutAccess(userId, programId, workoutId);
-
-    // Verify exercise exists
     const exercise = await this.prisma.exercise.findUnique({
       where: { id: createWorkoutExerciseDto.exerciseId },
     });
@@ -33,13 +30,12 @@ export class WorkoutExercisesService {
       );
     }
 
-    // Get the highest order number
+    // Add exercise in correct order
     const highestOrder = await this.prisma.workoutExercise.findFirst({
       where: { workoutId },
       orderBy: { order: 'desc' },
       select: { order: true },
     });
-
     const order = highestOrder ? highestOrder.order + 1 : 0;
 
     return this.prisma.workoutExercise.create({
@@ -55,9 +51,7 @@ export class WorkoutExercisesService {
   }
 
   async findAll(userId: string, programId: string, workoutId: string) {
-    // Verify ownership
     await this.verifyWorkoutAccess(userId, programId, workoutId);
-
     return this.prisma.workoutExercise.findMany({
       where: { workoutId },
       include: {
@@ -74,10 +68,7 @@ export class WorkoutExercisesService {
     workoutId: string,
     updateWorkoutExerciseDto: UpdateWorkoutExerciseDto,
   ) {
-    // Verify ownership
     await this.verifyWorkoutAccess(userId, programId, workoutId);
-
-    // Check if workout exercise exists
     const workoutExercise = await this.prisma.workoutExercise.findUnique({
       where: { id },
     });
@@ -103,10 +94,7 @@ export class WorkoutExercisesService {
     programId: string,
     workoutId: string,
   ) {
-    // Verify ownership
     await this.verifyWorkoutAccess(userId, programId, workoutId);
-
-    // Check if workout exercise exists
     const workoutExercise = await this.prisma.workoutExercise.findUnique({
       where: { id },
     });
@@ -126,7 +114,6 @@ export class WorkoutExercisesService {
     programId: string,
     workoutId: string,
   ) {
-    // Check if program exists and belongs to user
     const program = await this.prisma.program.findUnique({
       where: { id: programId },
     });
@@ -134,12 +121,10 @@ export class WorkoutExercisesService {
     if (!program) {
       throw new NotFoundException(`Program with ID ${programId} not found`);
     }
-
     if (program.userId !== userId) {
       throw new ForbiddenException('You do not have access to this program');
     }
 
-    // Check if workout exists and belongs to program
     const workout = await this.prisma.workout.findUnique({
       where: { id: workoutId },
     });

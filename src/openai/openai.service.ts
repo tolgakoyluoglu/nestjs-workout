@@ -24,7 +24,6 @@ export class OpenAiService {
   async generateWorkoutPlan(
     dto: GenerateWorkoutDto,
   ): Promise<GeneratedWorkoutPlan> {
-    // 1. Fetch all exercises from the database
     const exercises = await this.prisma.exercise.findMany({
       select: {
         id: true,
@@ -36,14 +35,10 @@ export class OpenAiService {
       },
     });
 
-    // 2. Create a detailed system prompt
     const systemPrompt = this.createSystemPrompt(exercises);
-
-    // 3. Create the user prompt based on preferences
     const userPrompt = this.createUserPrompt(dto);
 
     try {
-      // 4. Call OpenAI to generate the workout plan
       const response = await this.openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
@@ -55,11 +50,8 @@ export class OpenAiService {
         response_format: { type: 'json_object' },
       });
 
-      // 5. Parse the response and return the workout plan
       const content = response.choices[0]?.message?.content || '{}';
       const workoutPlan = JSON.parse(content) as GeneratedWorkoutPlan;
-
-      // Ensure the workout plan has an ID
       workoutPlan.id = uuidv4();
 
       return workoutPlan;
@@ -122,6 +114,7 @@ Important:
 - Make sure the total workout fits within the requested duration
 - For muscle gain: focus on compound movements, 3-5 sets, 8-12 reps, 60-90s rest
 - For weight loss: include more metabolic exercises, 3-4 sets, 12-15 reps, 30-60s rest
+- For balanced: include a balanced program with at least one compound movement each workout, 3-4 sets, 10-12 reps, 60-90s rest (higher for compound movements)
 `;
   }
 
@@ -129,7 +122,9 @@ Important:
     const goalText =
       dto.goal === FitnessGoal.MUSCLE_GAIN
         ? 'muscle gain (hypertrophy)'
-        : 'weight loss (fat loss)';
+        : dto.goal === FitnessGoal.WEIGHT_LOSS
+          ? 'weight loss (fat loss)'
+          : 'balanced (weight loss and muscle gain';
 
     return `
 Please create a workout program with the following specifications:
@@ -139,24 +134,5 @@ Please create a workout program with the following specifications:
 
 I want a structured program that I can follow consistently with specific sets, reps, and rest periods tailored to my goals.
 `;
-  }
-
-  // The original generateWorkout method can be kept for simpler text-based responses
-  async generateWorkout(prompt: string): Promise<string> {
-    try {
-      const response = await this.openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'You are a fitness coach.' },
-          { role: 'user', content: prompt },
-        ],
-        max_tokens: 1000,
-      });
-
-      return response.choices[0]?.message?.content || 'No response from AI';
-    } catch (error) {
-      console.error('Error communicating with OpenAI:', error);
-      throw new Error('Failed to generate workout plan');
-    }
   }
 }

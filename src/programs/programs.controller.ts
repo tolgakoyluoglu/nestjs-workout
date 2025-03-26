@@ -32,21 +32,16 @@ export class ProgramsController {
     @Request() req,
     @Body() generateWorkoutDto: GenerateWorkoutDto,
   ) {
-    // Generate the workout plan using OpenAI
     const generatedPlan =
       await this.openAiService.generateWorkoutPlan(generateWorkoutDto);
 
-    // Create a new program
     const program = await this.programService.create(req.user.id, {
       name: generatedPlan.name,
       description: generatedPlan.description,
     });
 
-    // Create workouts for the program
     for (let i = 0; i < generatedPlan.workouts.length; i++) {
       const workout = generatedPlan.workouts[i];
-
-      // Create the workout
       const createdWorkout = await this.workoutsService.create(
         req.user.id,
         program.id,
@@ -56,7 +51,6 @@ export class ProgramsController {
         },
       );
 
-      // Add exercises to the workout
       for (let j = 0; j < workout.exercises.length; j++) {
         const exercise = workout.exercises[j];
 

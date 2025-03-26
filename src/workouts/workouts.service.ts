@@ -15,7 +15,6 @@ export class WorkoutsService {
     programId: string,
     createWorkoutDto: CreateWorkoutDto,
   ) {
-    // Check if program exists and belongs to user
     const program = await this.prisma.program.findUnique({
       where: { id: programId },
     });
@@ -28,13 +27,11 @@ export class WorkoutsService {
       throw new ForbiddenException('You do not have access to this program');
     }
 
-    // Get the highest order number for existing workouts in this program
     const highestOrder = await this.prisma.workout.findFirst({
       where: { programId },
       orderBy: { order: 'desc' },
       select: { order: true },
     });
-
     const order = highestOrder ? highestOrder.order + 1 : 0;
 
     return this.prisma.workout.create({
@@ -47,7 +44,6 @@ export class WorkoutsService {
   }
 
   async findAllByProgram(userId: string, programId: string) {
-    // Check if program exists and belongs to user
     const program = await this.prisma.program.findUnique({
       where: { id: programId },
     });
@@ -67,7 +63,6 @@ export class WorkoutsService {
   }
 
   async findOne(id: string, programId: string, userId: string) {
-    // Check if program exists and belongs to user
     const program = await this.prisma.program.findUnique({
       where: { id: programId },
     });
@@ -105,7 +100,6 @@ export class WorkoutsService {
     userId: string,
     updateWorkoutDto: UpdateWorkoutDto,
   ) {
-    // Check if program exists and belongs to user
     const program = await this.prisma.program.findUnique({
       where: { id: programId },
     });
@@ -135,7 +129,6 @@ export class WorkoutsService {
   }
 
   async remove(id: string, programId: string, userId: string) {
-    // Check if program exists and belongs to user
     const program = await this.prisma.program.findUnique({
       where: { id: programId },
     });

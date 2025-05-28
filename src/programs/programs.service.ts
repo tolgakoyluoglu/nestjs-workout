@@ -32,6 +32,13 @@ export class ProgramsService {
       include: {
         workouts: {
           orderBy: { order: 'asc' },
+          include: {
+            workoutExercises: {
+              include: {
+                exercise: true,
+              },
+            },
+          },
         },
       },
     });

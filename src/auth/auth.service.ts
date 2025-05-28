@@ -30,7 +30,6 @@ export class AuthService {
   async register(createUserDto: CreateUserDto): Promise<any> {
     const { email, password } = createUserDto;
 
-    // Check if user already exists
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -39,11 +38,9 @@ export class AuthService {
       throw new UnauthorizedException('User already exists');
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create new user
     const user = await this.prisma.user.create({
       data: {
         ...createUserDto,
@@ -51,7 +48,6 @@ export class AuthService {
       },
     });
 
-    // Return user without password
     const { password: _, ...result } = user;
     return result;
   }

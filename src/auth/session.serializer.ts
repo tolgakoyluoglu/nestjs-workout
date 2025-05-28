@@ -9,7 +9,6 @@ export class SessionSerializer extends PassportSerializer {
   }
 
   serializeUser(user: any, done: (err: Error, user: any) => void): any {
-    // Store just the user ID in the session
     done(null, user.id);
   }
 
@@ -26,7 +25,6 @@ export class SessionSerializer extends PassportSerializer {
         return done(new Error('User not found'), null);
       }
 
-      // Return user without password
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password: _, ...userWithoutPassword } = user;
       done(null, userWithoutPassword);
